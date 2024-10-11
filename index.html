@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trabajo Historia</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Asegúrate de tener tu CSS -->
+    <title>Formulario de Trabajos</title>
 </head>
 <body>
     <div class="container">
-        <h1>trabajo historia</h1>
-        <div class="form-container">
-            <input type="text" id="titulo" placeholder="Título de la tarea" required>
-            <textarea id="descripcion" placeholder="Descripción del trabajo" required></textarea>
-            <button id="publicar">Publicar</button>
-        </div>
-        <div class="trabajos">
-            <h2>Trabajos Publicados</h2>
-            <div id="listaTrabajos"></div>
-        </div>
+        <h1>Añadir Trabajo</h1>
+        <input type="text" id="titulo" placeholder="Título del trabajo" required>
+        <textarea id="descripcion" placeholder="Descripción del trabajo" required></textarea>
+        <button id="publicar">Publicar Trabajo</button>
+        <button id="borrar">Borrar Todos</button>
+
+        <h2>Lista de Trabajos</h2>
+        <div id="listaTrabajos"></div>
     </div>
-    <script src="script.js"></script>
+
+    <script src="script.js"></script> <!-- Tu código JavaScript -->
 </body>
 </html>
