@@ -5,12 +5,14 @@ document.getElementById('publicar').addEventListener('click', function() {
     const titulo = document.getElementById('titulo').value;
     const descripcion = document.getElementById('descripcion').value;
     const listaTrabajos = document.getElementById('listaTrabajos');
-    const selectTrabajos = document.getElementById('selectTrabajos');
 
     if (titulo && descripcion) {
         const trabajo = { titulo, descripcion };
         guardarTrabajoEnLocalStorage(trabajo);
         agregarTrabajoALaLista(trabajo);
+
+        // Enviar trabajo a Discord
+        enviarTrabajoADiscord(trabajo);
 
         // Limpiar los campos
         document.getElementById('titulo').value = '';
@@ -18,13 +20,42 @@ document.getElementById('publicar').addEventListener('click', function() {
     }
 });
 
-document.getElementById('borrar').addEventListener('click', function() {
-    const selectTrabajos = document.getElementById('selectTrabajos');
-    const tituloSeleccionado = selectTrabajos.value;
+function enviarTrabajoADiscord(trabajo) {
+    const webhookURL = 'https://discord.com/api/webhooks/1294434757257592852/wCfTijvI_oBQl3kWXicN2BP_Tgn4UgKiRF1ZMlqPg4ZhdSugFQaf3Icw_diYb3Dk09bW'; // Reemplaza con tu URL de webhook
 
-    if (tituloSeleccionado) {
-        eliminarTrabajoDeLocalStorage(tituloSeleccionado);
-        removeOptionFromSelect(tituloSeleccionado);
+    fetch(webhookURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            content: `Nuevo trabajo añadido:\n**Título:** ${trabajo.titulo}\n**Descripción:** ${trabajo.descripcion}`
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al enviar el trabajo a Discord');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Trabajo enviado correctamente a Discord:', data);
+        alert('Trabajo publicado y enviado a Discord.');
+    })
+    .catch(error => {
+        console.error('Error al enviar el trabajo a Discord:', error);
+        alert('Error al enviar el trabajo a Discord.');
+    });
+}
+
+document.getElementById('borrar').addEventListener('click', function() {
+    const listaTrabajos = document.getElementById('listaTrabajos');
+    const trabajos = listaTrabajos.getElementsByClassName('trabajo');
+
+    // Borrar todos los trabajos
+    while (trabajos.length > 0) {
+        eliminarTrabajoDeLocalStorage(trabajos[0].querySelector('input').value);
+        listaTrabajos.removeChild(trabajos[0]);
     }
 });
 
@@ -41,7 +72,6 @@ function cargarTrabajosDesdeLocalStorage() {
 
 function agregarTrabajoALaLista(trabajo) {
     const listaTrabajos = document.getElementById('listaTrabajos');
-    const selectTrabajos = document.getElementById('selectTrabajos');
 
     const trabajoDiv = document.createElement('div');
     trabajoDiv.classList.add('trabajo');
@@ -60,43 +90,16 @@ function agregarTrabajoALaLista(trabajo) {
     eliminarBoton.addEventListener('click', function() {
         listaTrabajos.removeChild(trabajoDiv);
         eliminarTrabajoDeLocalStorage(trabajo.titulo);
-        removeOptionFromSelect(trabajo.titulo);
     });
 
     trabajoDiv.appendChild(trabajoTitulo);
     trabajoDiv.appendChild(trabajoDescripcion);
     trabajoDiv.appendChild(eliminarBoton);
     listaTrabajos.appendChild(trabajoDiv);
-
-    const option = document.createElement('option');
-    option.textContent = trabajo.titulo;
-    option.value = trabajo.titulo;
-    selectTrabajos.appendChild(option);
 }
 
 function eliminarTrabajoDeLocalStorage(titulo) {
     const trabajos = JSON.parse(localStorage.getItem('trabajos')) || [];
     const trabajosFiltrados = trabajos.filter(trabajo => trabajo.titulo !== titulo);
     localStorage.setItem('trabajos', JSON.stringify(trabajosFiltrados));
-}
-
-function removeOptionFromSelect(titulo) {
-    const trabajos = document.getElementById('listaTrabajos');
-    const options = document.getElementById('selectTrabajos').options;
-
-    // Borrar el trabajo de la lista
-    for (let i = 0; i < trabajos.children.length; i++) {
-        if (trabajos.children[i].querySelector('input').value === titulo) {
-            trabajos.removeChild(trabajos.children[i]);
-            break;
-        }
-    }
-
-    // Borrar el trabajo del menú de selección
-    for (let i = 0; i < options.length; i++) {
-        if (options[i].value === titulo) {
-            document.getElementById('selectTrabajos').removeChild(options[i]);
-            break;
-        }
-    }
 }
